@@ -1,0 +1,181 @@
+services:
+
+#  pdns-recursor-pgsql:
+#    image: pschiffe/pdns-recursor:${RECURSOR_TAG:-latest}
+#    networks:
+#      - pdns-pgsql
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#    ulimits:
+#      nofile:
+#        soft: 10000
+#        hard: 10000
+
+  postgres:
+    image: docker.io/postgres:18-alpine
+    networks:
+      pdns-pgsql:
+        aliases:
+          - db
+          - pgsql
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - pgsql:/var/lib/postgresql/data:Z
+    environment:
+      - POSTGRES_PASSWORD=my-secret-pw
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      timeout: 10s
+      retries: 5
+
+  adminer:
+    image: docker.io/adminer
+    networks:
+      - pdns-pgsql
+    ports:
+      - '7988:8080'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+
+  pdns-pgsql-master:
+    image: docker.io/pschiffe/pdns-pgsql:${PDNS_PGSQL_TAG:-latest}
+    hostname: ns1.example.com
+    networks:
+      pdns-pgsql:
+        ipv4_address: 172.8.0.20
+        aliases:
+          - pdns
+    extra_hosts:
+      - 'ns1.example.com:172.8.0.20'
+      #- 'ns2.example.com:172.8.0.21'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_gpgsql_password=my-secret-pw
+      - PDNS_primary=yes
+      - PDNS_api=yes
+      - PDNS_api_key=secret
+      - PDNS_webserver=yes
+      - PDNS_webserver_address=0.0.0.0
+      - PDNS_webserver_allow_from=0.0.0.0/0
+      - PDNS_version_string=anonymous
+      - PDNS_default_ttl=1500
+      - PDNS_allow_axfr_ips=0.0.0.0/0
+      - PDNS_only_notify=172.8.0.21
+    depends_on:
+      - postgres
+
+#  pdns-pgsql-slave:
+#    image: docker.io/pschiffe/pdns-pgsql:${PDNS_PGSQL_TAG:-latest}
+#    hostname: ns2.example.com
+#    networks:
+#      pdns-pgsql:
+#        ipv4_address: 172.8.0.21
+#    extra_hosts:
+#      - 'ns1.example.com:172.8.0.20'
+#      - 'ns2.example.com:172.8.0.21'
+#    volumes:
+#      - /etc/localtime:/etc/localtime:ro
+#    environment:
+#      - PDNS_gpgsql_dbname=powerdnsslave
+#      - PDNS_gpgsql_password=my-secret-pw
+#      - PDNS_secondary=yes
+#      - PDNS_autosecondary=yes
+#      - PDNS_webserver=yes
+#      - PDNS_webserver_address=0.0.0.0
+#      - PDNS_webserver_allow_from=0.0.0.0/0
+#      - PDNS_version_string=anonymous
+#      #- PDNS_disable_axfr=yes
+#      - PDNS_allow_axfr_ips=0.0.0.0/0
+#      - PDNS_allow_notify_from=172.8.0.20
+#      - SUPERMASTER_IPS=172.8.0.20
+#    depends_on:
+#      - postgres
+#      - pdns-pgsql-master
+
+  pdns-admin-pgsql:
+    image: docker.io/pschiffe/pdns-admin
+    networks:
+      pdns-pgsql:
+        aliases:
+          - pdns-admin
+    ports:
+      - '7989:8080'
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - PDNS_ADMIN_SQLA_DB_TYPE=postgres
+      - PDNS_ADMIN_SQLA_DB_HOST=pgsql
+      - PDNS_ADMIN_SQLA_DB_PORT=5432
+      - PDNS_ADMIN_SQLA_DB_USER=postgres
+      - PDNS_ADMIN_SQLA_DB_PASSWORD=my-secret-pw
+      - PDNS_VERSION=5.0
+      - PDNS_API_KEY=secret
+      - PA_PDNS_SERVER_NAME=pdns-pgsql-master
+    depends_on:
+      - postgres
+      - pdns-pgsql-master
+
+  poweradmin:
+    image: docker.io/poweradmin/poweradmin
+    read_only: true
+    ports:
+      - "7990:80"
+    extra_hosts:
+      - 'ns1.example.com:172.8.0.20'
+      #- 'ns2.example.com:172.8.0.21'
+    tmpfs:
+      - /tmp:rw,noexec,nosuid
+    environment:
+      #- DB_TYPE=sqlite
+      - DB_TYPE=pgsql
+      - PA_CONFIG_PATH=/config/custom.php
+      - PA_CREATE_ADMIN=1
+      - PA_ADMIN_USERNAME=admin
+      - PA_ADMIN_PASSWORD=admin
+      #- DB_FILE=/db/pdns.db
+      - DB_HOST=pgsql
+      - DB_USER=postgres
+      - DB_PASS=my-secret-pw
+      - DB_NAME=powerdns
+      - DNS_NS1=ns1.example.com
+      #- DNS_NS2=ns2.example.com
+      - DNS_HOSTMASTER=hostmaster.example.com
+      - PA_PDNS_SERVER_NAME=pdns
+      - PA_PDNS_API_URLhttp://172.8.0.20:8081
+      - PA_PDNS_API_KEY=secret
+      - PA_DNSSEC_ENABLED=false
+      - PA_API_ENABLED=true
+      - PA_API_BASIC_AUTH_ENABLED=true
+      - PA_API_DOCS_ENABLED=true
+    volumes:
+      - poweradmin-config:/config:rw
+      - poweradmin-db:/db:rw
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      #- mysql
+      - postgres
+      - pdns-pgsql-master
+
+#  mysql:
+#    image: docker.io/mysql:8.0
+#    environment:
+#      - MYSQL_ROOT_PASSWORD=rootpassword
+#      - MYSQL_DATABASE=poweradmin
+#      - MYSQL_USER=poweradmin
+#      - MYSQL_PASSWORD=password
+#    volumes:
+#      - mysql_data:/var/lib/mysql
+
+networks:
+  pdns-pgsql:
+    ipam:
+      config:
+        - subnet: 172.8.0.0/16
+          gateway: 172.8.0.1
+
+volumes:
+  pgsql:
+  poweradmin-config:
+  poweradmin-db:
+  mysql_data:
