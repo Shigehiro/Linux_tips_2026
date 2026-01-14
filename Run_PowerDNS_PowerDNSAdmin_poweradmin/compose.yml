@@ -178,4 +178,4 @@ volumes:
   pgsql:
   poweradmin-config:
   poweradmin-db:
-  mysql_data:
+  #mysql_data:
