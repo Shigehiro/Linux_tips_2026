@@ -12,6 +12,9 @@ CentOS Stream release 10 (Coughlan)
 
 $ getenforce
 Permissive
+
+$ sudo grep ^uri_default /etc/libvirt/libvirt.conf
+uri_default = "qemu:///system"
 ```
 
 ## Walkthrough
