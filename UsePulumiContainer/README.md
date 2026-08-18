@@ -56,7 +56,7 @@ podman run -it -d \
 Install the required package:
 
 ```bash
-apt install -y genisoimage
+podman exec vigorous_williams apt install -y genisoimage
 ```
 
 Create a new Pulumi project:
