@@ -62,33 +62,29 @@ If you would like to run the processes on the default DNS port (53), edit `ports
 
 bind9/bin/tests/system/isctest/vars/ports.py
 ```python
-    16  PORT_MIN = 5001
-    17  PORT_MAX = 32767
-    18  PORTS_PER_TEST = 20
-    19
     20  PORT_VARS = {
-    21      #"PORT": "5300",
-    22      "PORT": "53",
-    23      "TLSPORT": "5301",
-    24      "HTTPPORT": "5302",
-    25      "HTTPSPORT": "5303",
-    26      "EXTRAPORT1": "5304",
-    27      "EXTRAPORT2": "5305",
-    28      "EXTRAPORT3": "5306",
-    29      "EXTRAPORT4": "5307",
-    30      "EXTRAPORT5": "5308",
-    31      "EXTRAPORT6": "5309",
-    32      "EXTRAPORT7": "5310",
-    33      "EXTRAPORT8": "5311",
-    34      "CONTROLPORT": "5312",
-    35  }
+    21      "PORT": "5300",
+    22      "TLSPORT": "5301",
+    23      "HTTPPORT": "5302",
+    24      "HTTPSPORT": "5303",
+    25      "EXTRAPORT1": "5304",
+    26      "EXTRAPORT2": "5305",
+    27      "EXTRAPORT3": "5306",
+    28      "EXTRAPORT4": "5307",
+    29      "EXTRAPORT5": "5308",
+    30      "EXTRAPORT6": "5309",
+    31      "EXTRAPORT7": "5310",
+    32      "EXTRAPORT8": "5311",
+    33      "CONTROLPORT": "5312",
+    34  }
+    35
     36
-    37
-    38  def set_base_port(base_port: int):
-    39      log.debug(f"setting base port {base_port}")
-    40      assert base_port >= PORT_MIN
-    41      assert base_port <= PORT_MAX
-    42      PORT_VARS["PORT"] = str(base_port)
+    37  def set_base_port(base_port: int):
+    38      log.debug(f"setting base port {base_port}")
+    39      #assert base_port >= PORT_MIN
+    40      #assert base_port <= PORT_MAX
+    41      #base_port = 53
+    42      #PORT_VARS["PORT"] = str(base_port)
     43      PORT_VARS["PORT"] = str(53)
     44      PORT_VARS["TLSPORT"] = str(base_port + 1)
     45      PORT_VARS["HTTPPORT"] = str(base_port + 2)
@@ -102,7 +98,7 @@ bind9/bin/tests/system/isctest/vars/ports.py
     53      PORT_VARS["EXTRAPORT7"] = str(base_port + 10)
     54      PORT_VARS["EXTRAPORT8"] = str(base_port + 11)
     55      PORT_VARS["CONTROLPORT"] = str(base_port + 12)
-    56      #os.environ.update(PORT_VARS)
+    56      os.environ.update(PORT_VARS)
 ```
 
 ## unbound
