@@ -57,6 +57,54 @@ pytest allow_query/tests_sh_allow_query.py --trace
 pytest allow_query/tests_sh_allow_query.py --noclean
 ```
 
+<br>By default, DNS processes use randomly assigned ports ranging from PORT_MIN to PORT_MAX.
+If you would like to run the processes on the default DNS port (53), edit `ports.py` as shown below.<br>
+
+bind9/bin/tests/system/isctest/vars/ports.py
+```python
+    16  PORT_MIN = 5001
+    17  PORT_MAX = 32767
+    18  PORTS_PER_TEST = 20
+    19
+    20  PORT_VARS = {
+    21      #"PORT": "5300",
+    22      "PORT": "53",
+    23      "TLSPORT": "5301",
+    24      "HTTPPORT": "5302",
+    25      "HTTPSPORT": "5303",
+    26      "EXTRAPORT1": "5304",
+    27      "EXTRAPORT2": "5305",
+    28      "EXTRAPORT3": "5306",
+    29      "EXTRAPORT4": "5307",
+    30      "EXTRAPORT5": "5308",
+    31      "EXTRAPORT6": "5309",
+    32      "EXTRAPORT7": "5310",
+    33      "EXTRAPORT8": "5311",
+    34      "CONTROLPORT": "5312",
+    35  }
+    36
+    37
+    38  def set_base_port(base_port: int):
+    39      log.debug(f"setting base port {base_port}")
+    40      assert base_port >= PORT_MIN
+    41      assert base_port <= PORT_MAX
+    42      PORT_VARS["PORT"] = str(base_port)
+    43      PORT_VARS["PORT"] = str(53)
+    44      PORT_VARS["TLSPORT"] = str(base_port + 1)
+    45      PORT_VARS["HTTPPORT"] = str(base_port + 2)
+    46      PORT_VARS["HTTPSPORT"] = str(base_port + 3)
+    47      PORT_VARS["EXTRAPORT1"] = str(base_port + 4)
+    48      PORT_VARS["EXTRAPORT2"] = str(base_port + 5)
+    49      PORT_VARS["EXTRAPORT3"] = str(base_port + 6)
+    50      PORT_VARS["EXTRAPORT4"] = str(base_port + 7)
+    51      PORT_VARS["EXTRAPORT5"] = str(base_port + 8)
+    52      PORT_VARS["EXTRAPORT6"] = str(base_port + 9)
+    53      PORT_VARS["EXTRAPORT7"] = str(base_port + 10)
+    54      PORT_VARS["EXTRAPORT8"] = str(base_port + 11)
+    55      PORT_VARS["CONTROLPORT"] = str(base_port + 12)
+    56      #os.environ.update(PORT_VARS)
+```
+
 ## unbound
 
 ```
