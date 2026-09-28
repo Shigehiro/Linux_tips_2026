@@ -101,6 +101,18 @@ bind9/bin/tests/system/isctest/vars/ports.py
     56      os.environ.update(PORT_VARS)
 ```
 
+<br>Pytest stops the test environment after completing the tests. If you would like to keep it running, execute pytest with the --trace option.<br>
+```shell
+$ pytest nsec_wildcard_wrong_zone/tests_nsec_wildcard_wrong_zone.py --trace
+```
+
+<br>On another terminal.
+```shell
+$ ps aux |grep -E 'named|ans1' |grep -v grep
+hattori     3054  0.0  0.2 475244 17276 pts/0    Sl+  01:57   0:00 /home/hattori/bind9/build/named -D nsec_wildcard_wrong_zone-tmp-5eb35kz1-ns2 -m record -c named.conf -d 99 -g -T maxcachesize=2097152
+hattori     3068  0.0  0.7  74280 61844 pts/0    S+   01:57   0:00 /home/hattori/venv/bin/python3.14 -u -m nsec_wildcard_wrong_zone-tmp-5eb35kz1.ans1.ans 10.53.0.1 53
+```
+
 ## unbound
 
 ```
