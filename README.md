@@ -4,3 +4,4 @@
 - [OSS DNS: How to Run Unit Tests](./OSS_DNS_UnitTests/README.md)
 - [Manage KVM(libvirt) with pulumi docker image](./UsePulumiContainer/README.md)
 - [Set Up Ollama with an AMD Ryzen 9 7940HS w/ Radeon 780M Graphics](./Ollama_AMD_Ryzen9_7940HS_Radeon780M/README.md)
+- [PowerDNS Recursor: Using custom hints in a private IP address range](./PowerRecursor_custom_hints_privateIP/README.md)
